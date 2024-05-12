@@ -73,8 +73,8 @@ end
 function cm.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local p=Duel.GetTurnPlayer()
-	if not Duel.IsPlayerCanSpecialSummonMonster(tp,6018,0,TYPES_TOKEN_MONSTER,500,500,2,RACE_MACHINE,ATTRIBUTE_EARTH,POS_FACEUP_ATTACK,p) then return end
-	local token=Duel.CreateToken(tp,6018)
+	if not Duel.IsPlayerCanSpecialSummonMonster(tp,10000105,0,TYPES_TOKEN_MONSTER,500,500,2,RACE_MACHINE,ATTRIBUTE_EARTH,POS_FACEUP_ATTACK,p) then return end
+	local token=Duel.CreateToken(tp,10000105)
 	if Duel.SpecialSummonStep(token,0,tp,p,false,false,POS_FACEUP_ATTACK) then
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)
