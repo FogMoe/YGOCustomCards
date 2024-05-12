@@ -53,12 +53,12 @@ function c22348414.activate(e,tp,eg,ep,ev,re,r,rp)
 		if Duel.Remove(tc,POS_FACEUP,REASON_EFFECT)~=0 then
 		local sc=Duel.GetOperatedGroup():GetFirst()
 		local e1=Effect.CreateEffect(e:GetHandler())
-		e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+		e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
 		e1:SetCode(EVENT_LEAVE_FIELD)
 		e1:SetCountLimit(1)
 		e1:SetOperation(c22348414.spop)
 		e1:SetLabelObject(sc)
-		Duel.RegisterEffect(e1,tp)
+		e:GetHandler():RegisterEffect(e1)
 		end
 	end
 end
