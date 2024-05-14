@@ -11,7 +11,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e1)
 end
 function s.filter(c,e,tp)
-	return c:IsLevelBelow(10) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:IsAttackBelow(1000) and c:IsDefenseAbove(2000)
+	return c:IsLevelBelow(10) and c:IsLevelAbove(6) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:IsAttackBelow(1000) and c:IsDefenseAbove(2000)
     and (c:IsRace(RACE_DRAGON) or c:IsRace(RACE_DINOSAUR) or c:IsRace(RACE_SEASERPENT) or c:IsRace(RACE_WINDBEAST))
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
