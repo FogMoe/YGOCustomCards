@@ -2,15 +2,22 @@ local m=53736003
 local cm=_G["c"..m]
 cm.name="暗从者的狂乱"
 function cm.initial_effect(c)
-	aux.EnablePendulumAttribute(c)
-	aux.EnableReviveLimitPendulumSummonable(c)
+	aux.EnablePendulumAttribute(c,false)
+	local e0=Effect.CreateEffect(c)
+	e0:SetDescription(1160)
+	e0:SetType(EFFECT_TYPE_ACTIVATE)
+	e0:SetCode(EVENT_FREE_CHAIN)
+	e0:SetRange(LOCATION_HAND)
+	e0:SetCost(cm.pencost)
+	c:RegisterEffect(e0)
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(m,0))
 	e1:SetCategory(CATEGORY_DESTROY+CATEGORY_TOHAND+CATEGORY_SEARCH)
 	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
-	e1:SetCode(EVENT_PHASE+PHASE_STANDBY)
+	e1:SetCode(EVENT_SPSUMMON_SUCCESS)
 	e1:SetRange(LOCATION_PZONE)
 	e1:SetCountLimit(1)
+	e1:SetCondition(cm.condition)
 	e1:SetTarget(cm.target)
 	e1:SetOperation(cm.operation)
 	c:RegisterEffect(e1)
@@ -22,6 +29,28 @@ function cm.initial_effect(c)
 	e2:SetTarget(cm.tg)
 	e2:SetOperation(cm.op)
 	c:RegisterEffect(e2)
+end
+function cm.pencost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.GetActivityCount(tp,ACTIVITY_NORMALSUMMON)==0 and Duel.GetCustomActivityCount(m,tp,ACTIVITY_SPSUMMON)==0 end
+	local e1=Effect.CreateEffect(e:GetHandler())
+	e1:SetType(EFFECT_TYPE_FIELD)
+	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_OATH)
+	e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+	e1:SetReset(RESET_PHASE+PHASE_END)
+	e1:SetTargetRange(1,0)
+	Duel.RegisterEffect(e1,tp)
+	local e2=e1:Clone()
+	e2:SetCode(EFFECT_CANNOT_SUMMON)
+	Duel.RegisterEffect(e2,tp)
+	local e3=e1:Clone()
+	e3:SetCode(EFFECT_CANNOT_MSET)
+	Duel.RegisterEffect(e3,tp)
+end
+function cm.cfilter(c,tp)
+	return c:IsSummonPlayer(tp) and c:IsSummonType(SUMMON_TYPE_PENDULUM)
+end
+function cm.condition(e,tp,eg,ep,ev,re,r,rp)
+	return eg:IsExists(cm.cfilter,1,nil,tp)
 end
 function cm.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
@@ -45,7 +74,7 @@ end
 function cm.tg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return (e:GetLabel()==0 and chkc:IsLocation(LOCATION_MZONE) and cm.filter(chkc)) or (e:GetLabel()==1 and chkc:IsOnField() and chkc:IsFacedown()) or (e:GetLabel()==2 and chkc:IsOnField()) end
 	local b1=false
-	local b2=Duel.IsExistingTarget(Card.IsFacedown,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil)
+	local b2=Duel.IsExistingTarget(aux.AND(Card.IsFacedown,Card.IsAbleToHand),tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil)
 	local b3=false
 	if chk==0 then return b1 or b2 or b3 end
 	local off=1
@@ -74,10 +103,10 @@ function cm.tg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 		local g=Duel.SelectTarget(tp,cm.filter,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
 		Duel.SetOperationInfo(0,CATEGORY_POSITION,g,1,0,0)
 	elseif sel==1 then
-		e:SetCategory(CATEGORY_DESTROY)
+		e:SetCategory(CATEGORY_TOHAND)
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-		local g=Duel.SelectTarget(tp,Card.IsFacedown,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
-		Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,g:GetCount(),0,0)
+		local g=Duel.SelectTarget(tp,aux.AND(Card.IsFacedown,Card.IsAbleToHand),tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
+		Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,g:GetCount(),0,0)
 	else
 		e:SetCategory(0)
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
@@ -91,7 +120,7 @@ function cm.op(e,tp,eg,ep,ev,re,r,rp)
 	if sel==0 then
 		if tc:IsLocation(LOCATION_MZONE) and tc:IsFaceup() then Duel.ChangePosition(tc,POS_FACEDOWN_DEFENSE) end
 	elseif sel==1 then
-		Duel.Destroy(tc,REASON_EFFECT)
+		Duel.SendtoHand(tc,nil,REASON_EFFECT)
 	else
 		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetDescription(aux.Stringid(m,5))

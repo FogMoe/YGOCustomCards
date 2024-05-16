@@ -14,52 +14,11 @@ function cm.initial_effect(c)
 	local e2=e1:Clone()
 	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
 	c:RegisterEffect(e2)
-	--act in hand
---  local e3=Effect.CreateEffect(c)
---  e3:SetType(EFFECT_TYPE_SINGLE)
---  e3:SetCode(EFFECT_TRAP_ACT_IN_HAND)
---  e3:SetCondition(c22348359.handcon)
---  c:RegisterEffect(e3)
-	--banish replace
-	local e4=Effect.CreateEffect(c)
-	e4:SetType(EFFECT_TYPE_SINGLE)
-	e4:SetCode(22348359)
-	e4:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
-	e4:SetRange(LOCATION_GRAVE)
-	e1:SetCountLimit(1,22348359)
-	--c:RegisterEffect(e4)
-	--changeffect
-	local e5=Effect.CreateEffect(c)
-	e5:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
-	e5:SetCode(EVENT_REMOVE)
-	e5:SetCondition(c22348359.cecon)
-	e5:SetOperation(c22348359.ceop)
-	--c:RegisterEffect(e5)
 	
 end
 function c22348359.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsDiscardable,tp,LOCATION_HAND,0,1,nil) end
 	Duel.DiscardHand(tp,Card.IsDiscardable,1,1,REASON_COST+REASON_DISCARD)
-end
-function c22348359.cecon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsReason(REASON_REPLACE) and re:IsActivated() and re:IsActiveType(TYPE_MONSTER)
-		and re:GetHandler():IsSetCard(0x970a)
-end
-function c22348359.ceop(e,tp,eg,ep,ev,re,r,rp)
-	local tc=re:GetHandler()
-	tc:RegisterFlagEffect(22348359,RESET_CHAIN,0,1,1)
-end
-function c22348359.costfilter(c)
-	return c:IsSetCard(0x970a) and c:IsType(TYPE_MONSTER) and c:IsDiscardable()
-end
-function c22348359.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	local c=e:GetHandler()
-	if c:IsStatus(STATUS_ACT_FROM_HAND) then
-	if chk==0 then return Duel.IsExistingMatchingCard(c22348359.costfilter,tp,LOCATION_HAND,0,1,c) end
-	Duel.DiscardHand(tp,c22348359.costfilter,1,1,REASON_COST+REASON_DISCARD)
-	else
-	if chk==0 then return true end
-	end
 end
 function c22348359.handcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()

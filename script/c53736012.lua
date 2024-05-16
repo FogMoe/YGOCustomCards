@@ -2,15 +2,22 @@ local m=53736012
 local cm=_G["c"..m]
 cm.name="暗从者的尖端"
 function cm.initial_effect(c)
-	aux.EnablePendulumAttribute(c)
-	aux.EnableReviveLimitPendulumSummonable(c)
+	aux.EnablePendulumAttribute(c,false)
+	local e0=Effect.CreateEffect(c)
+	e0:SetDescription(1160)
+	e0:SetType(EFFECT_TYPE_ACTIVATE)
+	e0:SetCode(EVENT_FREE_CHAIN)
+	e0:SetRange(LOCATION_HAND)
+	e0:SetCost(cm.pencost)
+	c:RegisterEffect(e0)
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(m,0))
 	e1:SetCategory(CATEGORY_DESTROY+CATEGORY_TOHAND+CATEGORY_SEARCH)
 	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
-	e1:SetCode(EVENT_PHASE+PHASE_STANDBY)
+	e1:SetCode(EVENT_SPSUMMON_SUCCESS)
 	e1:SetRange(LOCATION_PZONE)
 	e1:SetCountLimit(1)
+	e1:SetCondition(cm.condition)
 	e1:SetTarget(cm.target)
 	e1:SetOperation(cm.operation)
 	c:RegisterEffect(e1)
@@ -22,6 +29,28 @@ function cm.initial_effect(c)
 	e2:SetTarget(cm.tg)
 	e2:SetOperation(cm.op)
 	c:RegisterEffect(e2)
+end
+function cm.pencost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.GetActivityCount(tp,ACTIVITY_NORMALSUMMON)==0 and Duel.GetCustomActivityCount(m,tp,ACTIVITY_SPSUMMON)==0 end
+	local e1=Effect.CreateEffect(e:GetHandler())
+	e1:SetType(EFFECT_TYPE_FIELD)
+	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_OATH)
+	e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+	e1:SetReset(RESET_PHASE+PHASE_END)
+	e1:SetTargetRange(1,0)
+	Duel.RegisterEffect(e1,tp)
+	local e2=e1:Clone()
+	e2:SetCode(EFFECT_CANNOT_SUMMON)
+	Duel.RegisterEffect(e2,tp)
+	local e3=e1:Clone()
+	e3:SetCode(EFFECT_CANNOT_MSET)
+	Duel.RegisterEffect(e3,tp)
+end
+function cm.cfilter(c,tp)
+	return c:IsSummonPlayer(tp) and c:IsSummonType(SUMMON_TYPE_PENDULUM)
+end
+function cm.condition(e,tp,eg,ep,ev,re,r,rp)
+	return eg:IsExists(cm.cfilter,1,nil,tp)
 end
 function cm.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
@@ -84,17 +113,17 @@ function cm.op(e,tp,eg,ep,ev,re,r,rp)
 	if not tc:IsRelateToEffect(e) then return end
 	local sel=e:GetLabel()
 	if sel==0 then
-		tc:RegisterFlagEffect(m,RESET_EVENT+RESETS_STANDARD,0,0)
-		local e3=Effect.CreateEffect(e:GetHandler())
-		e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-		e3:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
-		e3:SetCode(EVENT_PHASE+PHASE_STANDBY)
-		e3:SetCountLimit(1)
-		e3:SetCondition(cm.tgcon)
-		e3:SetOperation(cm.tgop)
-		e3:SetLabel(Duel.GetTurnCount()+1)
-		e3:SetLabelObject(tc)
-		Duel.RegisterEffect(e3,tp)
+		local e1=Effect.CreateEffect(e:GetHandler())
+		e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+		e1:SetCode(EVENT_PHASE+PHASE_END)
+		e1:SetCountLimit(1)
+		e1:SetRange(LOCATION_MZONE)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+		e1:SetOperation(cm.tgop)
+		e1:SetLabel(0)
+		e1:SetOwnerPlayer(tp)
+		tc:RegisterEffect(e1)
 	elseif sel==1 then
 		if tc:IsFaceup() then
 		local e1=Effect.CreateEffect(e:GetHandler())
@@ -115,15 +144,15 @@ function cm.op(e,tp,eg,ep,ev,re,r,rp)
 		tc:RegisterEffect(e2)
 	end
 end
-function cm.tgcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetTurnCount()==e:GetLabel()
-end
 function cm.tgop(e,tp,eg,ep,ev,re,r,rp)
-	local tc=e:GetLabelObject()
-	if tc:GetFlagEffect(m)~=0 then
-		Duel.SendtoGrave(tc,REASON_EFFECT)
+	local ct=e:GetLabel()
+	ct=ct+1
+	e:SetLabel(ct)
+	e:GetOwner():SetTurnCounter(ct)
+	if ct==5 then
+		Duel.SendtoGrave(e:GetHandler(),REASON_EFFECT)
+		e:Reset()
 	end
-	e:Reset()
 end
 function cm.valcon(e,re,r,rp)
 	return bit.band(r,REASON_EFFECT)~=0
