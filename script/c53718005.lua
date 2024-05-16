@@ -13,7 +13,7 @@ function cm.initial_effect(c)
 	e1:SetCountLimit(1,m)
 	e1:SetTarget(cm.sptg)
 	e1:SetOperation(cm.spop)
-	c:RegisterEffect(e1)
+	--c:RegisterEffect(e1)
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(m,3))
 	e3:SetCategory(CATEGORY_TODECK+CATEGORY_TOHAND)
@@ -51,17 +51,17 @@ function cm.spop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function cm.tdfilter(c)
-	return c:IsType(TYPE_SPELL) and c:IsAbleToDeck()
+	return c:IsCode(53718002) and c:IsAbleToDeck() and c:IsFaceupEx()
 end
 function cm.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
-	if chk==0 then return Duel.IsExistingMatchingCard(cm.tdfilter,tp,LOCATION_HAND,0,1,nil) and c:IsAbleToHand() end
-	Duel.SetOperationInfo(0,CATEGORY_TODECK,nil,1,tp,LOCATION_HAND)
+	if chk==0 then return Duel.IsExistingMatchingCard(cm.tdfilter,tp,LOCATION_HAND+LOCATION_REMOVED,0,1,nil) and c:IsAbleToHand() end
+	Duel.SetOperationInfo(0,CATEGORY_TODECK,nil,1,tp,LOCATION_HAND+LOCATION_REMOVED)
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,c,1,0,0)
 end
 function cm.thop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	local g=Duel.GetMatchingGroup(cm.tdfilter,tp,LOCATION_HAND,0,nil)
+	local g=Duel.GetMatchingGroup(cm.tdfilter,tp,LOCATION_HAND+LOCATION_REMOVED,0,nil)
 	if c:IsRelateToEffect(e) and #g>0 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
 		local sg=g:Select(tp,1,1,nil)

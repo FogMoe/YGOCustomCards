@@ -26,7 +26,7 @@ function cm.initial_effect(c)
 	e3:SetCountLimit(1,m+66)
 	e3:SetTarget(cm.thtg)
 	e3:SetOperation(cm.thop)
-	c:RegisterEffect(e3)
+	--c:RegisterEffect(e3)
 end
 function cm.costfilter(c)
 	return c:IsCode(53718001,53718002) and c:IsAbleToGraveAsCost()
