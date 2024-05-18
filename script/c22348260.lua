@@ -52,7 +52,8 @@ function c22348260.atktg2(e,c)
 	return c:IsRace(RACE_ZOMBIE)
 end
 function c22348260.indtg(e,c)
-	return c:IsSetCard(0x570b)
+	local tc=e:GetHandler()
+	return c:IsSetCard(0x570b) and tc:GetFlagEffect(22348260)==0 and tc:RegisterFlagEffect(22348260,RESET_EVENT+RESETS_STANDARD,0,1)
 end
 function c22348260.indct(e,re,r,rp)
 	return bit.band(r,REASON_BATTLE)~=0

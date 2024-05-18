@@ -29,9 +29,8 @@ function c22348356.costfilter(c)
 	return c:IsSetCard(0x970a) and c:IsDiscardable()
 end
 function c22348356.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c22348356.costfilter,tp,LOCATION_HAND,0,1,e:GetHandler()) and e:GetHandler():IsAbleToRemoveAsCost() end
+	if chk==0 then return e:GetHandler():IsAbleToRemoveAsCost() end
 	Duel.Remove(e:GetHandler(),POS_FACEUP,REASON_COST)
-	Duel.DiscardHand(tp,c22348356.costfilter,1,1,REASON_COST+REASON_DISCARD,e:GetHandler())
 end
 function c22348356.atkfilter(c)
 	return c:IsFaceup() and c:IsRace(RACE_ZOMBIE)

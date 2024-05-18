@@ -13,6 +13,25 @@ function cm.initial_effect(c)
 	e1:SetOperation(c22348353.desop)
 	c:RegisterEffect(e1)
 	
+
+	--atk/def up
+	local e2=Effect.CreateEffect(c)
+	e2:SetType(EFFECT_TYPE_FIELD)
+	e2:SetCode(EFFECT_UPDATE_ATTACK)
+	e2:SetRange(LOCATION_MZONE)
+	e2:SetTargetRange(LOCATION_MZONE,0)
+	e2:SetTarget(aux.TargetBoolFunction(Card.IsSetCard,0x970a))
+	e2:SetValue(c22348353.val)
+	c:RegisterEffect(e2)
+	local e3=e2:Clone()
+	e3:SetCode(EFFECT_UPDATE_DEFENSE)
+	c:RegisterEffect(e3)
+end
+function c22348353.atkfilter(c)
+	return c:IsFaceup() and c:IsRace(RACE_ZOMBIE)
+end
+function c22348353.val(e,c)
+	return Duel.GetMatchingGroupCount(c22348353.atkfilter,c:GetControler(),LOCATION_MZONE,LOCATION_MZONE,nil)*100
 end
 function c22348353.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsFaceup() end
